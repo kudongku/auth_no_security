@@ -1,9 +1,11 @@
 package com.example.auth_no_security.controller;
 
 import com.example.auth_no_security.dto.CommonResponseDto;
+import com.example.auth_no_security.dto.LoginRequestDto;
 import com.example.auth_no_security.dto.MailRequestDto;
 import com.example.auth_no_security.dto.SignupRequestDto;
 import com.example.auth_no_security.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,5 +26,10 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<CommonResponseDto> signup(@RequestBody SignupRequestDto signupRequestDto) throws NoSuchAlgorithmException {
         return userService.signup(signupRequestDto);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<CommonResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse res) throws NoSuchAlgorithmException {
+        return userService.login(loginRequestDto, res);
     }
 }

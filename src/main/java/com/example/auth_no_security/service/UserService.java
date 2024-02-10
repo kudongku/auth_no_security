@@ -2,12 +2,15 @@ package com.example.auth_no_security.service;
 
 import com.example.auth_no_security.config.Encoder;
 import com.example.auth_no_security.dto.CommonResponseDto;
+import com.example.auth_no_security.dto.LoginRequestDto;
 import com.example.auth_no_security.dto.MailRequestDto;
 import com.example.auth_no_security.dto.SignupRequestDto;
 import com.example.auth_no_security.entity.Mail;
 import com.example.auth_no_security.entity.User;
+import com.example.auth_no_security.jwt.JwtUtil;
 import com.example.auth_no_security.repository.MailRepository;
 import com.example.auth_no_security.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -26,6 +29,7 @@ public class UserService {
     private final JavaMailSender javaMailSender;
     private final UserRepository userRepository;
     private final MailRepository mailRepository;
+    private final JwtUtil jwtUtil;
     private final Encoder encoder;
 
     public ResponseEntity<CommonResponseDto> signup(SignupRequestDto signupRequestDto) throws NoSuchAlgorithmException {
@@ -69,5 +73,19 @@ public class UserService {
         javaMailSender.send(message);
         mailRepository.save(new Mail(mailRequestDto.getMail(), encodedEmail));
         return ResponseEntity.status(200).body(new CommonResponseDto("가입 이메일 전송 성공", 200));
+    }
+
+    public ResponseEntity<CommonResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse res) throws NoSuchAlgorithmException {
+        User user = userRepository.findByUsername(loginRequestDto.getUsername()).orElseThrow(
+                ()-> new NullPointerException("가입된 적 없는 아이디입니다.")
+        );
+
+        if(!encoder.encrypt(loginRequestDto.getPassword()).equals(user.getPassword())){
+            return ResponseEntity.status(400).body(new CommonResponseDto("비밀번호가 올바르지 않습니다.", 400));
+        }
+
+        jwtUtil.addToken(user.getUsername(), res);
+
+        return ResponseEntity.status(200).body(new CommonResponseDto("로그인 성공", 200));
     }
 }
