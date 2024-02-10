@@ -1,11 +1,13 @@
 package com.example.auth_no_security.entity;
 
+import com.example.auth_no_security.dto.SignupRequestDto;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 public class User extends Timestamped {
     // TODO: 2/10/24 data annotation 수정
@@ -23,4 +25,10 @@ public class User extends Timestamped {
 
     @Column(nullable = false)
     private String email;
+
+    public User(SignupRequestDto signupRequestDto, String encodedPassword) {
+        this.username = signupRequestDto.getUsername();
+        this.password = encodedPassword;
+        this.email = signupRequestDto.getEmail();
+    }
 }
