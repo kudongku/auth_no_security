@@ -3,15 +3,12 @@ package com.example.auth_no_security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -20,7 +17,6 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String secretKey = "7Iqk7YyM66W07YOA7L2U65Sp7YG065+9U3ByaW5n6rCV7J2Y7Yqc7YSw7LWc7JuQ67mI7J6F64uI64ukLg==";
     private Key key;
     public final String BEARER_PREFIX = "Bearer";
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
@@ -28,6 +24,7 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
+        String secretKey = "7Iqk7YyM66W07YOA7L2U65Sp7YG065+9U3ByaW5n6rCV7J2Y7Yqc7YSw7LWc7JuQ67mI7J6F64uI64ukLg==";
         byte[] bytes = Base64.getDecoder().decode(secretKey);
         key = Keys.hmacShaKeyFor(bytes);
     }
@@ -74,15 +71,7 @@ public class JwtUtil {
     }
 
     public String getTokenFromRequest(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
-                    return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8); // Encode 되어 넘어간 Value 다시 Decode
-                }
-            }
-        }
-        return null;
+        return req.getHeader(AUTHORIZATION_HEADER);
     }
 }
 
